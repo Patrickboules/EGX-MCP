@@ -40,7 +40,7 @@ egx30_companies_dict = {
     "Aēon": "AEON"
 }
 
-@MCP.resource()
+@MCP.resource("egx://companies")
 def get_egx_companies_dict():
     """
     Get the python dict for the EGX companies
@@ -49,7 +49,7 @@ def get_egx_companies_dict():
     """
     return egx30_companies_dict
 
-@MCP.resource()
+@MCP.resource("egx://companies/{company_name}")
 def get_egx_companies_dict(company_name:str):
     """
     Get the ticker of the company
@@ -62,7 +62,7 @@ def get_egx_companies_dict(company_name:str):
     """
     return egx30_companies_dict[company_name]
 
-@MCP.tool()
+@MCP.tool("time://local")
 def get_current_time():
     """
     Get the current local date and time.
