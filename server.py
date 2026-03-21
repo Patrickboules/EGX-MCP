@@ -1,55 +1,24 @@
 from mcp.server.fastmcp import FastMCP
-from datetime import datetime
-from egx_controller import EGXController
+from datetime import datetime,timedelta
+from Domain.egx_controller import EGXController
+from Domain.gold_controller import GoldController
 
 
-MCP = FastMCP("EGX-MCP")
-controller = EGXController()
+mcp = FastMCP("EGX-MCP")
+stocks = EGXController()
+gold = GoldController()
 
-egx30_companies_dict = {
-    "Abu Qir Fertilizers & Chemicals Industries": "ABUK",
-    "Alexandria Mineral Oils": "AMOC",
-    "Abu Dhabi Islamic Bank – Egypt": "ADIB",
-    "Arab Petroleum Pipelines": "APIL",
-    "Commercial International Bank – Egypt": "COMI",
-    "Crédit Agricole Egypt": "CIEB",
-    "EFG Hermes Holding": "HRHO",
-    "Eastern Tobacco": "EAST",
-    "Egypt Aluminum": "EGAL",
-    "Egypt Kuwait Holding": "EKHOA",
-    "Fawry for Banking & Payment Technology": "FWRY",
-    "GB Corp": "GBCO",
-    "Global Pensions & Insurance": "GPI",
-    "Heliopolis Housing": "HELI",
-    "Ibnsina Pharma": "ISPH",
-    "Juhayna Food Industries": "JUFO",
-    "Emaar Misr for Development": "EMFD",
-    "Orascom Construction": "ORAS",
-    "Orascom Hotels & Development": "ORHD",
-    "Orascom Investment Holding": "ORID",
-    "Palm Hills Developments": "PHDC",
-    "Qalaa Holdings": "CCAP",
-    "Raya Holding for Financial Investments": "RAYA",
-    "Telecom Egypt": "ETEL",
-    "TMG Holding": "TMGH",
-    "Valmore Holding": "VLMR",
-    "Biopharma": "BPHM",
-    "East Delta Electricity Production": "EDEC",
-    "Medinet Masr for Urban Development": "MASR",
-    "Sidi Kerir Petrochemicals": "SKPC",
-    "Aēon": "AEON"
-}
 
-@MCP.resource("egx://companies")
+@mcp.resource("egx://companies",name="egx_companies")
 def get_egx_companies_dict():
     """
     Get the python dict for the EGX companies
     Returns: 
         egx30 dict { company: ticker}
     """
-    return egx30_companies_dict
+    return stocks.getEGXCompanies()
 
-@MCP.resource("egx://companies/{company_name}")
+@mcp.resource("egx://companies/{company_name}", name="egx_company_ticker")
 def get_egx_companies_dict(company_name:str):
     """
     Get the ticker of the company
@@ -60,9 +29,9 @@ def get_egx_companies_dict(company_name:str):
     Returns: 
         egx30 dict { company: ticker}
     """
-    return egx30_companies_dict[company_name]
+    return stocks.getEGXCompanies()[company_name]
 
-@MCP.tool("time://local")
+@mcp.tool()
 def get_current_time():
     """
     Get the current local date and time.
@@ -72,21 +41,36 @@ def get_current_time():
     """
     return datetime.now()
 
+@mcp.tool()
+def get_timeperiod_date(todays_date:datetime,timeperiod: int):
+    """
+    Get the date of an old day based on todays date and last date needed
+    use the get_current_time function
 
-@MCP.tool()
+    Args:
+        todays_date: today's date
+        timeperiod: the total number of days in a time period (eg., week -> 7 days)
+    
+    Returns:
+        datetime: The date of the difference between the current day and the time period.
+
+    """
+    return todays_date - timedelta(days=timeperiod)
+
+@mcp.tool()
 def get_last_price(company_ticker:str):
     """
     Get the last closing price of a stock.
 
     Args:
-        company_ticker: The company's ticker symbol (e.g., 'AAPL').
+        company_ticker: The company's ticker symbol (e.g., 'COMI').
 
     Returns:
         float: The stock's closing price.
     """
-    return controller.getLastDailyPrice(company_ticker)
+    return stocks.getLastDailyPrice(company_ticker)
 
-@MCP.tool()
+@mcp.tool()
 def get_live_price(company_ticker:str):
     """
     Get the current live price of a stock.
@@ -97,4 +81,30 @@ def get_live_price(company_ticker:str):
 
     Returns:
         float: The stock's current or last closing price."""
-    return controller.getLivePrice(company_ticker)
+    return stocks.getLivePrice(company_ticker)
+
+@mcp.tool()
+def get_price_change(todays_date:datetime, end_date:datetime, company_ticker:str):
+    """
+    Get the change of a stock's price based on a start date and end date
+     
+    Args:
+       todays_date: Today's date using get_current_date.
+       end_date: The end date of a time period using get_timeperiod_date.
+       company_ticker: The company's ticker symbol (e.g., 'COMI').
+    
+    Returns:
+        List[float]: The intial price
+    """
+    return stocks.getPriceChange(todays_date,end_date,company_ticker)
+
+@mcp.tool()
+def get_current_gold_price():
+    """
+    Get the current live price of a 5 gold karats.
+
+    Returns:
+        List[dict{karat name, sell, buy}]: The stock's current or last closing price.
+    """
+
+    return gold.getCurrentGoldPrices()
