@@ -5,5 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "bs4>=0.0.2",
+    "egxpy",
+    "httpx>=0.28.1",
     "mcp[cli]>=1.26.0",
 ]
+
+[tool.uv.sources]
+egxpy = { git = "https://github.com/egxlytics/egxpy.git" }
