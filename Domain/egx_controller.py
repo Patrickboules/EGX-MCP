@@ -40,6 +40,7 @@ class EGXController:
 
     def getEGXCompanies(self):
         return self.__egx30_companies_dict
+    
     def getLastDailyPrice(self,ticker: str):
         response = get_OHLCV_data(ticker, "EGX", "Daily", 1)
         return response['close'].tolist()[0]
@@ -56,3 +57,9 @@ class EGXController:
         initial_date = self.parser.stringfyDates(end_date)
         response = get_EGXdata([ticker],"Daily",initial_date,today)
         return response[ticker].tolist()
+    
+    def getIntraday(self,ticker,todays_date):
+        today = self.parser.stringfyDates(todays_date)
+
+        response = get_EGX_intraday_data([ticker],'1 Minute',today,today)
+

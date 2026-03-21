@@ -108,3 +108,19 @@ def get_current_gold_price():
     """
 
     return gold.getCurrentGoldPrices()
+
+@mcp.tool()
+def get_intraday_readings(company_ticker:str, todays_date):
+    """
+    Gets the intraday price changes of stock
+    Falls back to the last closing price if live data is unavailable    
+    Args: 
+        company_ticker: The company's ticker symbol (e.g., 'COMI').
+        todays_date: today's date
+
+    Returns:
+        List[float]: The stock's intraday price.
+    """
+    return stocks.getIntraday(company_ticker,todays_date)
+
+    
