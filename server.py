@@ -19,7 +19,7 @@ def get_egx_companies_dict():
     return stocks.getEGXCompanies()
 
 @mcp.tool()
-def get_current_time():
+def get_current_time()-> datetime:
     """
     Get the current local date and time.
 
@@ -29,7 +29,7 @@ def get_current_time():
     return datetime.now()
 
 @mcp.tool()
-def get_timeperiod_date(todays_date:datetime,timeperiod: int):
+def get_timeperiod_date(todays_date:datetime,timeperiod: int)-> datetime:
     """
     Get the date of an old day based on todays date and last date needed
     use the get_current_time function
@@ -45,7 +45,7 @@ def get_timeperiod_date(todays_date:datetime,timeperiod: int):
     return todays_date - timedelta(days=timeperiod)
 
 @mcp.tool()
-def get_last_price(company_ticker:str):
+def get_last_price(company_ticker:str) -> float:
     """
     Get the last closing price of a stock.
 
@@ -58,7 +58,7 @@ def get_last_price(company_ticker:str):
     return stocks.getLastDailyPrice(company_ticker)
 
 @mcp.tool()
-def get_live_price(company_ticker:str):
+def get_live_price(company_ticker:str)-> float:
     """
     Get the current live price of a stock.
     Falls back to the last closing price if live data is unavailable    
@@ -71,7 +71,7 @@ def get_live_price(company_ticker:str):
     return stocks.getLivePrice(company_ticker)
 
 @mcp.tool()
-def get_price_change(todays_date:datetime, end_date:datetime, company_ticker:str):
+def get_price_change(todays_date:datetime, end_date:datetime, company_ticker:str)->list[float]:
     """
     Get the change of a stock's price based on a start date and end date
      
@@ -86,7 +86,7 @@ def get_price_change(todays_date:datetime, end_date:datetime, company_ticker:str
     return stocks.getPriceChange(todays_date,end_date,company_ticker)
 
 @mcp.tool()
-def get_current_gold_price():
+def get_current_gold_price()-> list[dict[str,float,float]]:
     """
     Get the current live price of a 5 gold karats.
 
@@ -97,7 +97,7 @@ def get_current_gold_price():
     return gold.getCurrentGoldPrices()
 
 @mcp.tool()
-def get_intraday_readings(company_ticker:str, todays_date:datetime):
+def get_intraday_readings(company_ticker:str, todays_date:datetime) -> list[float]:
     """
     Gets the intraday price changes of stock
     Falls back to the last closing price if live data is unavailable or date is invalid   
@@ -111,7 +111,7 @@ def get_intraday_readings(company_ticker:str, todays_date:datetime):
     return stocks.getIntraday(company_ticker,todays_date)
 
 @mcp.tool()
-def get_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5):
+def get_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5)-> dict[str,list[float]]:
     """
     Get the top N stocks that increased in value over a period of time
     Fall back to get_riser_intraday() instead for today
@@ -125,7 +125,7 @@ def get_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int
     return stocks.getPeriodRisers(todays_date,end_date,n_companies)
 
 @mcp.tool()
-def get_riser_intraday(todays_date:datetime, n_companies:int = 5):
+def get_riser_intraday(todays_date:datetime, n_companies:int = 5) -> dict[str,list[float]]:
     """
     Get the top N stocks that increased in value today
     Args
