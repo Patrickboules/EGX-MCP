@@ -127,6 +127,7 @@ mcp.tool()
 def get_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5):
     """
     Get the top N stocks that increased in value over a period of time
+    Fall back to get_riser_intraday if asked about today
     Args
         todays_date: Today's date using get_current_date.
         end_date: The end date of a time period using get_timeperiod_date.
