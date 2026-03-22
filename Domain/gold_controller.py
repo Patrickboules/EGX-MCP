@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 class GoldController:
-    headers = {
+    __headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en-US,en;q=0.5',
@@ -13,7 +13,7 @@ class GoldController:
 
     def getCurrentGoldPrices(self):
         url = "https://gold-era.eg/gold-price/"
-        response = requests.get(url, headers=self.headers)
+        response = requests.get(url, headers=self.__headers)
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table')  
         rows = table.find('tbody').find_all('tr')
