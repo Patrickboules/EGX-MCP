@@ -124,7 +124,7 @@ def get_intraday_readings(company_ticker:str, todays_date:datetime):
     return stocks.getIntraday(company_ticker,todays_date)
 
 mcp.tool()
-def get_N_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5):
+def get_N_stock_price_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5):
     """
     Get the top N stocks that increased in value over a period of time
     Args
@@ -137,7 +137,7 @@ def get_N_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:i
     return stocks.getPeriodRisers(todays_date,end_date,n_companies)
 
 @mcp.tool()
-def get_top5_riser_intraday(todays_date:datetime, n_companies:int = 5):
+def get_N_stock_price_riser_intraday(todays_date:datetime, n_companies:int = 5):
     """
     Get the top N stocks that increased in value today
     Args
