@@ -3,40 +3,34 @@ from egxpy.download import get_OHLCV_data, get_EGX_intraday_data, get_EGXdata
 from Domain.date_parser import DateParser
 
 class EGXController:
+    parser = DateParser()
+
     __egx30_companies_dict = {
     "Abu Qir Fertilizers & Chemicals Industries": "ABUK",
     "Alexandria Mineral Oils": "AMOC",
     "Abu Dhabi Islamic Bank – Egypt": "ADIB",
-    "Arab Petroleum Pipelines": "APIL",
     "Commercial International Bank – Egypt": "COMI",
     "Crédit Agricole Egypt": "CIEB",
     "EFG Hermes Holding": "HRHO",
     "Eastern Tobacco": "EAST",
     "Egypt Aluminum": "EGAL",
-    "Egypt Kuwait Holding": "EKHOA",
     "Fawry for Banking & Payment Technology": "FWRY",
     "GB Corp": "GBCO",
-    "Global Pensions & Insurance": "GPI",
     "Heliopolis Housing": "HELI",
     "Ibnsina Pharma": "ISPH",
     "Juhayna Food Industries": "JUFO",
     "Emaar Misr for Development": "EMFD",
     "Orascom Construction": "ORAS",
     "Orascom Hotels & Development": "ORHD",
-    "Orascom Investment Holding": "ORID",
     "Palm Hills Developments": "PHDC",
     "Qalaa Holdings": "CCAP",
     "Raya Holding for Financial Investments": "RAYA",
     "Telecom Egypt": "ETEL",
     "TMG Holding": "TMGH",
     "Valmore Holding": "VLMR",
-    "Biopharma": "BPHM",
-    "East Delta Electricity Production": "EDEC",
     "Medinet Masr for Urban Development": "MASR",
     "Sidi Kerir Petrochemicals": "SKPC",
-    "Aēon": "AEON"
 }
-    parser = DateParser()
 
     def getEGXCompanies(self):
         return self.__egx30_companies_dict
@@ -60,6 +54,25 @@ class EGXController:
     
     def getIntraday(self,ticker,todays_date):
         today = self.parser.stringfyDates(todays_date)
-
         response = get_EGX_intraday_data([ticker],'1 Minute',today,today)
+        return response[ticker].tolist()
 
+    def getPeriodRisers(self,todays_date:datetime,beginning_date:datetime,NCompanies):
+        return self.__getRisers(todays_date,beginning_date,get_EGXdata,'Daily',NCompanies)
+        
+    def getIntradayRiser(self,todays_date:datetime,NCompanies:int = 5):
+        return self.__getRisers(todays_date,todays_date,get_EGX_intraday_data,'1 Minute',NCompanies)
+
+    def __getRisers(self,todays_date:datetime,end_date:datetime,func,timing,NCompanies):
+        tickers = [ticker for ticker in self.__egx30_companies_dict.values()]
+        today = self.parser.stringfyDates(todays_date)
+        beginning = self.parser.stringfyDates(end_date)
+        response = func(tickers,timing,beginning,today)
+        deltas = {
+            t: ((response[t].tolist()[-1] - response[t].tolist()[0]) / response[t].tolist()[0]) * 100
+            for t in response
+            }
+        topN = sorted(deltas, key=lambda t: deltas[t],reverse=True)[::NCompanies]
+        return {ticker:response[ticker].tolist() for ticker in topN}
+
+        

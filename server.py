@@ -113,7 +113,7 @@ def get_current_gold_price():
 def get_intraday_readings(company_ticker:str, todays_date:datetime):
     """
     Gets the intraday price changes of stock
-    Falls back to the last closing price if live data is unavailable    
+    Falls back to the last closing price if live data is unavailable or date is invalid   
     Args: 
         company_ticker: The company's ticker symbol (e.g., 'COMI').
         todays_date: today's date
@@ -122,3 +122,28 @@ def get_intraday_readings(company_ticker:str, todays_date:datetime):
         List[float]: The stock's intraday price.
     """
     return stocks.getIntraday(company_ticker,todays_date)
+
+mcp.tool()
+def get_N_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5):
+    """
+    Get the top N stocks that increased in value over a period of time
+    Args
+        todays_date: Today's date using get_current_date.
+        end_date: The end date of a time period using get_timeperiod_date.
+        n_companies: the number of companies asked about
+    Returns
+        {ticker:List[float]}: dicts of a ticker and its prices
+    """
+    return stocks.getPeriodRisers(todays_date,end_date,n_companies)
+
+@mcp.tool()
+def get_top5_riser_intraday(todays_date:datetime, n_companies:int = 5):
+    """
+    Get the top N stocks that increased in value today
+    Args
+        todays_date: Today's date using get_current_date.
+        n_companies: the number of companies asked about
+    Returns
+        {ticker:List[float]}: dicts of a ticker and its prices
+    """
+    return stocks.getIntradayRiser(todays_date,n_companies)
