@@ -18,19 +18,6 @@ def get_egx_companies_dict():
     """
     return stocks.getEGXCompanies()
 
-@mcp.resource("egx://companies/{company_name}", name="egx_company_ticker")
-def get_egx_companies_dict(company_name:str):
-    """
-    Get the ticker of the company
-
-    Args:
-        company_name: official name of the company
-
-    Returns: 
-        egx30 dict { company: ticker}
-    """
-    return stocks.getEGXCompanies()[company_name]
-
 @mcp.tool()
 def get_current_time():
     """
@@ -123,11 +110,11 @@ def get_intraday_readings(company_ticker:str, todays_date:datetime):
     """
     return stocks.getIntraday(company_ticker,todays_date)
 
-mcp.tool()
+@mcp.tool()
 def get_risers_overtime(todays_date:datetime, end_date:datetime, n_companies:int = 5):
     """
     Get the top N stocks that increased in value over a period of time
-    Fall back to get_riser_intraday if asked about today
+    Fall back to get_riser_intraday() instead for today
     Args
         todays_date: Today's date using get_current_date.
         end_date: The end date of a time period using get_timeperiod_date.
