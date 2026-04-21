@@ -1,6 +1,13 @@
 from datetime import datetime
+import logging
+import os
 from egxpy.download import get_OHLCV_data, get_EGX_intraday_data, get_EGXdata
 from Domain.date_parser import DateParser
+
+
+logger = logging.getLogger("egx_ctrl")
+logger.setLevel(logging.DEBUG)  # Capture all levels
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class EGXController:
     parser = DateParser()
@@ -114,42 +121,61 @@ class EGXController:
     
     def getLastDailyPrice(self,ticker: str):
         response = get_OHLCV_data(ticker, "EGX", "Daily", 1)
-        return response['close'].tolist()[0]
-    
-    def getLivePrice(self,todays_date:datetime,ticker:str):
-        today = self.parser.stringfyDates(todays_date)
+        return float(response['close'].tolist()[0])
+
+    def getLivePrice(self,ticker:str):
+        today = self.parser.stringfyDates(datetime.today())
         response = get_EGX_intraday_data([ticker],"1 Minute",today, today)
-        return response[ticker].tolist()[-1]
-    
+        return float(response[ticker].tolist()[-1])
+
     def getPriceChange(self,todays_date:datetime,
-                       end_date:datetime,
+                       beginning_date:datetime,
                        ticker:str):
-        today = self.parser.stringfyDates(todays_date)
-        initial_date = self.parser.stringfyDates(end_date)
-        response = get_EGXdata([ticker],"Daily",initial_date,today)
-        return response[ticker].tolist()
-    
+        try:
+            today = self.parser.stringfyDates(todays_date)
+            initial_date = self.parser.stringfyDates(beginning_date)
+            response = get_EGXdata([ticker],"Daily",initial_date,today)
+            logger.info(type(response), response)
+            return [float(x) for x in response[ticker].tolist()]
+        except Exception as e:
+            logger.error(f"Error fetching price change for {ticker}: {e}")
+            return []
+
     def getIntraday(self,ticker,todays_date):
         today = self.parser.stringfyDates(todays_date)
         response = get_EGX_intraday_data([ticker],'1 Minute',today,today)
-        return response[ticker].tolist()
+        return [float(x) for x in response[ticker].tolist()]
 
+    # ToDo: Refactor the timing parameter to be more flexible and not hardcoded
     def getPeriodRisers(self,todays_date:datetime,beginning_date:datetime,NCompanies):
         return self.__getRisers(todays_date,beginning_date,get_EGXdata,'Daily',NCompanies)
-        
+
+    # ToDo: Refactor the timing parameter to be more flexible and not hardcoded
     def getIntradayRiser(self,todays_date:datetime,NCompanies:int = 5):
         return self.__getRisers(todays_date,todays_date,get_EGX_intraday_data,'1 Minute',NCompanies)
 
     def __getRisers(self,todays_date:datetime,end_date:datetime,func,timing,NCompanies):
+        """
+        ToDo: Fix issue: MCP error -32001: Request timed out when calling this function with get_EGXdata and a long time period. 
+        Consider implementing pagination or batching to handle large data requests. 
+        Also check for top gainers trackers APIs from egxpy or tvfeeds to avoid fetching unnecessary data for all companies 
+        when only the top risers are needed.
+        Args:
+            todays_date (datetime): The current date for which to calculate the risers.
+            end_date (datetime): The starting date for the period over which to calculate the risers.
+            func (function): The function to fetch data, either get_EGXdata or get_EGX_intraday_data.
+            timing (str): The timing parameter for the data fetch function, either 'Daily' or '1 Minute'.
+            NCompanies (int): The number of top risers to return.
+        """
         tickers = [ticker for ticker in self.__egx30_companies_dict.values()]
         today = self.parser.stringfyDates(todays_date)
         beginning = self.parser.stringfyDates(end_date)
         response = func(tickers,timing,beginning,today)
         deltas = {
-            t: ((response[t].tolist()[-1] - response[t].tolist()[0]) / response[t].tolist()[0]) * 100
+            t: ((float(response[t].tolist()[-1]) - float(response[t].tolist()[0])) / float(response[t].tolist()[0])) * 100
             for t in response
             }
-        topN = sorted(deltas, key=lambda t: deltas[t],reverse=True)[::NCompanies]
-        return {ticker:response[ticker].tolist() for ticker in topN}
+        topN = sorted(deltas, key=lambda t: deltas[t],reverse=True)[:NCompanies]
+        return {ticker:[float(x) for x in response[ticker].tolist()] for ticker in topN}
 
         
