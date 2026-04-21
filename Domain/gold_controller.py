@@ -27,9 +27,10 @@ class GoldController:
                 buy = cols[2].text.strip().replace(',', '')
                 gold_price.append(
                     {
-                    'karat name':karat,
+                    'karat':karat,
                     'sell': int(sell.replace("£","")),
                     'buy': int(buy.replace("£","")) 
                     })
                 
         return gold_price
+    

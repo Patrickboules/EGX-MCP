@@ -1,0 +1,6 @@
+**__pycache__**
+.venv
+CLAUDE.md
+bash.exe.stackdump
+.claude
+logs
